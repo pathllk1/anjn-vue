@@ -23,6 +23,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function fetchUser() {
     loading.value = true
+    error.value = null
     try {
       console.log('[AUTH] Fetching current user...');
       const response = await api.get('/auth/me')
@@ -33,8 +34,9 @@ export const useAuthStore = defineStore('auth', () => {
         console.warn('[AUTH] Fetch user failed:', response.message);
         user.value = null
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[AUTH] Error fetching user:', err);
+      error.value = err.message || 'Authentication failed'
       user.value = null
     } finally {
       loading.value = false
@@ -44,8 +46,11 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     try {
       await api.post('/auth/logout', {})
+    } catch (err) {
+      console.error('[AUTH] Logout error:', err)
     } finally {
       user.value = null
+      error.value = null
     }
   }
 

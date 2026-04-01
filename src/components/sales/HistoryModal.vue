@@ -31,16 +31,6 @@ const pageButtons = computed(() => {
   return Array.from({ length: 5 }, (_, i) => Math.max(1, Math.min(currentPage.value - 2, tp - 4)) + i)
 })
 
-// UTable columns definition
-const columns = [
-  { accessorKey: 'date',  header: 'Date' },
-  { accessorKey: 'batch', header: 'Batch' },
-  { accessorKey: 'qty',   header: 'Qty',   class: 'text-right' },
-  { accessorKey: 'rate',  header: 'Rate',  class: 'text-right' },
-  { accessorKey: 'total', header: 'Total', class: 'text-right font-semibold' },
-  { accessorKey: 'refNo', header: 'Ref No' },
-]
-
 watch(() => [props.stock, props.party], async () => {
   if (!props.stock || !props.party) return
   const key = cacheKey()
@@ -72,20 +62,7 @@ watch(() => [props.stock, props.party], async () => {
 </script>
 
 <template>
-  <div v-if="stock && party" class="flex flex-col h-full">
-    <!-- Header -->
-    <div class="px-4 py-3 border-b border-(--ui-border) flex justify-between items-center bg-(--ui-bg)">
-      <div>
-        <h3 class="font-bold text-base text-(--ui-text)">{{ stock.item }} — History</h3>
-        <div class="flex items-center gap-2 mt-0.5">
-          <p class="text-xs text-(--ui-text-muted)">Party: <strong>{{ party.firm }}</strong></p>
-          <UBadge v-if="historyData.length" :label="`${historyData.length} records`"
-                  color="primary" variant="subtle" size="xs" class="font-mono" />
-        </div>
-      </div>
-      <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" size="sm" @click="emit('close')" />
-    </div>
-
+  <div v-if="stock && party" class="flex flex-col h-full bg-(--ui-bg)">
     <!-- Loading -->
     <div v-if="loading" class="flex-1 flex items-center justify-center p-16">
       <div class="flex flex-col items-center gap-3 text-(--ui-text-muted)">

@@ -424,7 +424,7 @@ async function saveBill() {
 function handleAfterSave() {
   showSaveConfirmModal.value = false
   if (isEditMode.value || isReturnMode.value) {
-    router.push('/inventory/reports')
+    router.push('/sales')
   } else {
     cart.value = []; otherCharges.value = []; selectedParty.value = null
     selectedConsignee.value = null; partyBalance.value = null; historyCache.value = {}
@@ -527,7 +527,7 @@ function setConsigneeField(f: keyof Consignee, v: string) {
   <div v-else-if="appError" class="p-8 m-4">
     <UAlert :title="appError" color="error" variant="subtle" class="mb-4" />
     <div class="flex gap-2">
-      <UButton label="← Back" color="neutral" @click="$router.push('/inventory/sls')" />
+      <UButton label="← Back" color="neutral" @click="$router.push('/sales')" />
       <UButton label="Reload" color="error" @click="location.reload()" />
     </div>
   </div>
@@ -548,7 +548,7 @@ function setConsigneeField(f: keyof Consignee, v: string) {
           <span class="text-warning-600 ml-1">(dated {{ currentBill.bdate }})</span>
         </div>
         <UButton label="Cancel Return" color="warning" variant="ghost" size="xs"
-                 @click="$router.push('/inventory/sls')" />
+                 @click="$router.push('/sales')" />
       </div>
 
       <!-- ── Header bar ──────────────────────────────────────────────────── -->
@@ -948,6 +948,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Stock modal -->
     <UModal v-model:open="showStockModal"
+            title="Item Selection"
+            description="Browse and select stock items to add to your invoice."
             :ui="{ content: 'sm:max-w-5xl max-h-[90vh] flex flex-col overflow-hidden z-[100]', overlay: 'z-[100]' }"
             :close="false">
       <template #content>
@@ -960,6 +962,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Party modal -->
     <UModal v-model:open="showPartyModal"
+            title="Select Party"
+            description="Choose a party to bill this invoice to."
             :ui="{ content: 'sm:max-w-2xl max-h-[90vh] flex flex-col overflow-hidden z-[100]', overlay: 'z-[100]' }"
             :close="false">
       <template #content>
@@ -972,6 +976,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Batch modal -->
     <UModal v-model:open="showBatchModal"
+            title="Select Batch"
+            :description="batchModalStock ? `Choose a specific batch for ${batchModalStock.item}.` : 'Select a batch for the item.'"
             :ui="{ content: 'sm:max-w-xl overflow-hidden' }"
             :close="false">
       <template #content>
@@ -983,6 +989,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- History modal -->
     <UModal v-model:open="showHistoryModal"
+            :title="historyModalStock ? `${historyModalStock.item} — History` : 'Item History'"
+            :description="selectedParty ? `Viewing transaction history for this item with ${selectedParty.firm}.` : 'Viewing transaction history for this item.'"
             :ui="{ content: 'sm:max-w-3xl max-h-[80vh] flex flex-col overflow-hidden' }"
             :close="false">
       <template #content>
@@ -996,6 +1004,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Charges modal -->
     <UModal v-model:open="showChargesModal"
+            title="Other Charges"
+            description="Add additional costs like freight, packing, or insurance to the invoice."
             :ui="{ content: 'sm:max-w-3xl max-h-[85vh] flex flex-col overflow-hidden' }"
             :close="false">
       <template #content>
@@ -1009,6 +1019,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Party create modal -->
     <UModal v-model:open="showPartyCreateModal"
+            title="Add New Party"
+            description="Enter the details of the new firm or customer to add to your records."
             :ui="{ content: 'sm:max-w-xl overflow-hidden' }"
             :close="false">
       <template #content>
@@ -1018,6 +1030,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Stock CRUD modal -->
     <UModal v-model:open="showStockCrudModal"
+            :title="stockCrudMode === 'create' ? 'Create Stock Item' : 'Edit Stock Item'"
+            :description="stockCrudMode === 'create' ? 'Define a new product or service for your inventory.' : `Update details for ${editingStock?.item}.`"
             :ui="{ content: 'sm:max-w-xl overflow-hidden' }"
             :close="false">
       <template #content>
@@ -1028,6 +1042,8 @@ function setConsigneeField(f: keyof Consignee, v: string) {
 
     <!-- Save confirmation modal -->
     <UModal v-model:open="showSaveConfirmModal"
+            title="Transaction Complete"
+            description="Your bill has been successfully processed and saved."
             :ui="{ content: 'sm:max-w-sm overflow-hidden' }"
             :close="false">
       <template #content>

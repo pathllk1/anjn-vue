@@ -85,111 +85,103 @@ function chargeTotal(c: OtherCharge): number {
 </script>
 
 <template>
-  <!-- Header -->
-  <div class="px-4 py-3 border-b border-(--ui-border) flex justify-between items-center bg-(--ui-bg)">
-    <div>
-      <h3 class="font-bold text-base text-(--ui-text)">Other Charges</h3>
-      <p class="text-xs text-(--ui-text-muted) mt-0.5">Add freight, packing, insurance, etc.</p>
-    </div>
-    <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" size="sm" @click="emit('close')" />
-  </div>
+  <div class="flex flex-col h-full bg-(--ui-bg)">
+    <!-- Body -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-4">
 
-  <!-- Body -->
-  <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-(--ui-bg)">
-
-    <!-- Add form -->
-    <div class="p-4 bg-(--ui-bg-muted) rounded-xl border border-(--ui-border) space-y-3">
-      <div class="grid grid-cols-2 gap-3">
-        <!-- Charge name with autocomplete -->
-        <div class="relative">
-          <UFormField label="Charge Name" required>
-            <UInput v-model="name" placeholder="e.g. Freight, Packing" autocomplete="off"
-                    class="w-full"
-                    @input="showSuggestions = true" @blur="setTimeout(() => showSuggestions = false, 150)" />
-          </UFormField>
-          <div v-if="showSuggestions && filteredSuggestions.length"
-               class="absolute z-50 bg-(--ui-bg) border border-(--ui-border) rounded-xl shadow-xl mt-0.5 w-full max-h-40 overflow-y-auto top-full left-0">
-            <div v-for="c in filteredSuggestions" :key="c.name"
-                 @mousedown="applySuggestion(c)"
-                 class="px-3 py-2 hover:bg-(--ui-bg-elevated) cursor-pointer border-b border-(--ui-border) last:border-0">
-              <div class="text-sm font-medium text-(--ui-text)">{{ c.name || c.type }}</div>
-              <div class="text-[10px] text-(--ui-text-muted)">{{ c.type }} · HSN: {{ c.hsnSac || 'N/A' }} · GST {{ c.gstRate || 0 }}%</div>
+      <!-- Add form -->
+      <div class="p-4 bg-(--ui-bg-muted) rounded-xl border border-(--ui-border) space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <!-- Charge name with autocomplete -->
+          <div class="relative">
+            <UFormField label="Charge Name" required>
+              <UInput v-model="name" placeholder="e.g. Freight, Packing" autocomplete="off"
+                      class="w-full"
+                      @input="showSuggestions = true" @blur="setTimeout(() => showSuggestions = false, 150)" />
+            </UFormField>
+            <div v-if="showSuggestions && filteredSuggestions.length"
+                 class="absolute z-50 bg-(--ui-bg) border border-(--ui-border) rounded-xl shadow-xl mt-0.5 w-full max-h-40 overflow-y-auto top-full left-0">
+              <div v-for="c in filteredSuggestions" :key="c.name"
+                   @mousedown="applySuggestion(c)"
+                   class="px-3 py-2 hover:bg-(--ui-bg-elevated) cursor-pointer border-b border-(--ui-border) last:border-0">
+                <div class="text-sm font-medium text-(--ui-text)">{{ c.name || c.type }}</div>
+                <div class="text-[10px] text-(--ui-text-muted)">{{ c.type }} · HSN: {{ c.hsnSac || 'N/A' }} · GST {{ c.gstRate || 0 }}%</div>
+              </div>
             </div>
           </div>
+
+          <UFormField label="Type">
+            <USelect v-model="type" :items="typeOptions" value-key="value" label-key="label" class="w-full" />
+          </UFormField>
         </div>
 
-        <UFormField label="Type">
-          <USelect v-model="type" :items="typeOptions" value-key="value" label-key="label" class="w-full" />
-        </UFormField>
+        <div class="grid grid-cols-2 gap-3">
+          <UFormField label="HSN/SAC Code">
+            <UInput v-model="hsnSac" placeholder="e.g. 9965" class="w-full" />
+          </UFormField>
+          <UFormField label="Amount (₹)" required>
+            <UInput v-model="amount" type="number" step="0.01" placeholder="0.00" class="w-full" />
+          </UFormField>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <UFormField label="GST %">
+            <USelect v-model="gstRate" :items="gstOptions" value-key="value" label-key="label" class="w-full" />
+          </UFormField>
+          <div class="flex items-end">
+            <UButton label="+ Add Charge" color="primary" block @click="addCharge" />
+          </div>
+        </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <UFormField label="HSN/SAC Code">
-          <UInput v-model="hsnSac" placeholder="e.g. 9965" class="w-full" />
-        </UFormField>
-        <UFormField label="Amount (₹)" required>
-          <UInput v-model="amount" type="number" step="0.01" placeholder="0.00" class="w-full" />
-        </UFormField>
-      </div>
+      <!-- Charges list -->
+      <div>
+        <div class="flex justify-between items-center mb-2">
+          <h4 class="font-bold text-sm text-(--ui-text)">Charges Added</h4>
+          <span class="text-xs text-(--ui-text-muted)">
+            Total: <span class="font-bold text-primary">{{ fmt(totalCharges) }}</span>
+          </span>
+        </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <UFormField label="GST %">
-          <USelect v-model="gstRate" :items="gstOptions" value-key="value" label-key="label" class="w-full" />
-        </UFormField>
-        <div class="flex items-end">
-          <UButton label="+ Add Charge" color="primary" block @click="addCharge" />
+        <div class="overflow-x-auto rounded-xl border border-(--ui-border)">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-(--ui-bg-muted) text-[10px] font-bold text-(--ui-text-muted) uppercase tracking-wide border-b border-(--ui-border)">
+              <tr>
+                <th class="p-2.5">Name</th>
+                <th class="p-2.5">Type</th>
+                <th class="p-2.5">HSN/SAC</th>
+                <th class="p-2.5 text-right">Amount</th>
+                <th class="p-2.5 text-right">GST%</th>
+                <th class="p-2.5 text-right">Total</th>
+                <th class="p-2.5 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody class="bg-(--ui-bg) text-xs divide-y divide-(--ui-border)">
+              <tr v-if="charges.length === 0">
+                <td colspan="7" class="p-8 text-center text-(--ui-text-muted) italic text-sm">No charges added yet</td>
+              </tr>
+              <tr v-for="(charge, idx) in charges" :key="idx"
+                  class="hover:bg-(--ui-bg-elevated) transition-colors">
+                <td class="p-2.5 font-semibold text-(--ui-text)">{{ charge.name }}</td>
+                <td class="p-2.5 text-(--ui-text-muted)">{{ charge.type || '-' }}</td>
+                <td class="p-2.5 text-(--ui-text-muted) font-mono text-[11px]">{{ charge.hsnSac || '-' }}</td>
+                <td class="p-2.5 text-right font-mono tabular-nums">{{ fmt(charge.amount) }}</td>
+                <td class="p-2.5 text-right text-(--ui-text-muted)">{{ charge.gstRate }}%</td>
+                <td class="p-2.5 text-right font-bold tabular-nums text-(--ui-text)">{{ fmt(chargeTotal(charge)) }}</td>
+                <td class="p-2.5 text-center">
+                  <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="xs" @click="emit('remove', idx)" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
 
-    <!-- Charges list -->
-    <div>
-      <div class="flex justify-between items-center mb-2">
-        <h4 class="font-bold text-sm text-(--ui-text)">Charges Added</h4>
-        <span class="text-xs text-(--ui-text-muted)">
-          Total: <span class="font-bold text-primary">{{ fmt(totalCharges) }}</span>
-        </span>
-      </div>
-
-      <div class="overflow-x-auto rounded-xl border border-(--ui-border)">
-        <table class="w-full text-left border-collapse">
-          <thead class="bg-(--ui-bg-muted) text-[10px] font-bold text-(--ui-text-muted) uppercase tracking-wide border-b border-(--ui-border)">
-            <tr>
-              <th class="p-2.5">Name</th>
-              <th class="p-2.5">Type</th>
-              <th class="p-2.5">HSN/SAC</th>
-              <th class="p-2.5 text-right">Amount</th>
-              <th class="p-2.5 text-right">GST%</th>
-              <th class="p-2.5 text-right">Total</th>
-              <th class="p-2.5 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody class="bg-(--ui-bg) text-xs divide-y divide-(--ui-border)">
-            <tr v-if="charges.length === 0">
-              <td colspan="7" class="p-8 text-center text-(--ui-text-muted) italic text-sm">No charges added yet</td>
-            </tr>
-            <tr v-for="(charge, idx) in charges" :key="idx"
-                class="hover:bg-(--ui-bg-elevated) transition-colors">
-              <td class="p-2.5 font-semibold text-(--ui-text)">{{ charge.name }}</td>
-              <td class="p-2.5 text-(--ui-text-muted)">{{ charge.type || '-' }}</td>
-              <td class="p-2.5 text-(--ui-text-muted) font-mono text-[11px]">{{ charge.hsnSac || '-' }}</td>
-              <td class="p-2.5 text-right font-mono tabular-nums">{{ fmt(charge.amount) }}</td>
-              <td class="p-2.5 text-right text-(--ui-text-muted)">{{ charge.gstRate }}%</td>
-              <td class="p-2.5 text-right font-bold tabular-nums text-(--ui-text)">{{ fmt(chargeTotal(charge)) }}</td>
-              <td class="p-2.5 text-center">
-                <UButton label="Remove" color="error" variant="soft" size="xs" @click="emit('remove', idx)" />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <!-- Footer-like section inside body -->
+    <div class="px-4 py-3 border-t border-(--ui-border) bg-(--ui-bg-muted) flex justify-end gap-2">
+      <UButton label="Save & Close" color="primary" variant="solid"
+               @click="emit('save'); emit('close')" />
     </div>
-  </div>
-
-  <!-- Footer -->
-  <div class="px-4 py-3 border-t border-(--ui-border) bg-(--ui-bg-muted) flex justify-end gap-2">
-    <UButton label="Cancel" color="neutral" variant="ghost" @click="emit('close')" />
-    <UButton label="Save & Close" color="neutral" variant="solid"
-             @click="emit('save'); emit('close')" />
   </div>
 </template>

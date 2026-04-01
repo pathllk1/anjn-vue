@@ -13,15 +13,6 @@ function pickBatch(batch: Batch) {
 
 <template>
   <div v-if="stock">
-    <!-- Header -->
-    <div class="px-4 py-3 border-b border-(--ui-border) flex justify-between items-center bg-(--ui-bg-elevated)">
-      <div>
-        <h3 class="font-bold text-sm text-(--ui-text) tracking-wide">Select Batch</h3>
-        <p class="text-(--ui-text-muted) text-[10px] mt-0.5 truncate max-w-xs">{{ stock.item }}</p>
-      </div>
-      <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" size="sm" @click="emit('close')" />
-    </div>
-
     <!-- Batch list -->
     <div class="p-4 space-y-2.5 max-h-96 overflow-y-auto bg-(--ui-bg-muted)">
       <div v-if="!stock.batches?.length" class="text-center text-(--ui-text-muted) py-8 italic text-sm">

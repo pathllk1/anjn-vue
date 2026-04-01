@@ -369,6 +369,10 @@ function buildExportParams() {
   return p.toString()
 }
 
+function createNewBill() {
+  router.push('/sales/create')
+}
+
 function exportToExcel() {
   triggerDownload(
     `/api/inventory/sales/bills/export?${buildExportParams()}`,
@@ -430,22 +434,31 @@ onUnmounted(() => {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 bg-gradient-to-br from-orange-500 to-amber-600 rounded-lg flex items-center justify-center flex-shrink-0">
-          <UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-white" />
+          <UIcon name="i-heroicons-banknotes" class="w-5 h-5 text-white" />
         </div>
         <div>
-          <h1 class="text-xl font-bold text-gray-900 leading-tight">Bills Reports</h1>
+          <h1 class="text-xl font-bold text-gray-900 leading-tight">Sales Dashboard</h1>
           <p class="text-xs text-gray-500">View and analyze all bills and transactions</p>
         </div>
       </div>
-      <UButton
-        to="/"
-        icon="i-heroicons-arrow-left"
-        label="Home"
-        color="warning"
-        variant="subtle"
-        size="xs"
-        class="self-start sm:self-auto"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          icon="i-heroicons-plus"
+          label="Create Sale"
+          color="primary"
+          size="xs"
+          @click="createNewBill"
+        />
+        <UButton
+          to="/"
+          icon="i-heroicons-arrow-left"
+          label="Home"
+          color="neutral"
+          variant="subtle"
+          size="xs"
+          class="self-start sm:self-auto"
+        />
+      </div>
     </div>
 
     <!-- ── Return action notice ───────────────────────────────────────────────── -->
@@ -471,48 +484,48 @@ onUnmounted(() => {
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-2">
       <UCard :ui="{ body: 'p-3' }">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-            <UIcon name="i-heroicons-document-text" class="w-4 h-4 text-blue-600" />
+          <div class="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
+            <UIcon name="i-heroicons-document-text" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
           <div class="min-w-0">
-            <p class="text-xs text-gray-500 truncate">Total Bills</p>
-            <p class="text-lg font-bold text-gray-900 leading-tight">{{ summary.totalBills }}</p>
+            <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">Total Bills</p>
+            <p class="text-lg font-black text-gray-900 dark:text-gray-100 leading-tight">{{ summary.totalBills }}</p>
           </div>
         </div>
       </UCard>
 
       <UCard :ui="{ body: 'p-3' }">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-            <UIcon name="i-heroicons-currency-rupee" class="w-4 h-4 text-green-600" />
+          <div class="w-8 h-8 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center flex-shrink-0">
+            <UIcon name="i-heroicons-currency-rupee" class="w-4 h-4 text-green-600 dark:text-green-400" />
           </div>
           <div class="min-w-0">
-            <p class="text-xs text-gray-500 truncate">Revenue</p>
-            <p class="text-lg font-bold text-gray-900 leading-tight">{{ fmtAmt(summary.revenue) }}</p>
+            <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">Revenue</p>
+            <p class="text-lg font-black text-gray-900 dark:text-gray-100 leading-tight">{{ fmtAmt(summary.revenue) }}</p>
           </div>
         </div>
       </UCard>
 
       <UCard :ui="{ body: 'p-3' }">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center flex-shrink-0">
-            <UIcon name="i-heroicons-receipt-percent" class="w-4 h-4 text-orange-600" />
+          <div class="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center flex-shrink-0">
+            <UIcon name="i-heroicons-receipt-percent" class="w-4 h-4 text-orange-600 dark:text-orange-400" />
           </div>
           <div class="min-w-0">
-            <p class="text-xs text-gray-500 truncate">Total Tax</p>
-            <p class="text-lg font-bold text-gray-900 leading-tight">{{ fmtAmt(summary.totalTax) }}</p>
+            <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">Total Tax</p>
+            <p class="text-lg font-black text-gray-900 dark:text-gray-100 leading-tight">{{ fmtAmt(summary.totalTax) }}</p>
           </div>
         </div>
       </UCard>
 
       <UCard :ui="{ body: 'p-3' }">
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-            <UIcon name="i-heroicons-check-circle" class="w-4 h-4 text-purple-600" />
+          <div class="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center flex-shrink-0">
+            <UIcon name="i-heroicons-check-badge" class="w-4 h-4 text-purple-600 dark:text-purple-400" />
           </div>
           <div class="min-w-0">
-            <p class="text-xs text-gray-500 truncate">Active Bills</p>
-            <p class="text-lg font-bold text-gray-900 leading-tight">{{ summary.activeBills }}</p>
+            <p class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider truncate">Active Bills</p>
+            <p class="text-lg font-black text-gray-900 dark:text-gray-100 leading-tight">{{ summary.activeBills }}</p>
           </div>
         </div>
       </UCard>

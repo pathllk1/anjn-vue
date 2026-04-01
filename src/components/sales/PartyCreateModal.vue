@@ -33,7 +33,7 @@ function getCSRF(): string {
   const name = 'csrfToken='
   for (const cookie of decodeURIComponent(document.cookie).split(';')) {
     const c = cookie.trim()
-    if (t.startsWith(name)) return t.substring(name.length)
+    if (c.startsWith(name)) return c.substring(name.length)
   }
   return ''
 }
@@ -112,62 +112,55 @@ async function submit() {
 </script>
 
 <template>
-  <!-- Header -->
-  <div class="px-4 py-3 border-b border-(--ui-border) flex justify-between items-center bg-(--ui-bg-elevated)">
-    <div>
-      <h3 class="font-bold text-sm text-(--ui-text) tracking-wide uppercase">Add New Party</h3>
-      <p class="text-(--ui-text-muted) text-[10px] mt-0.5">Fill in party details below</p>
+  <div class="flex flex-col h-full bg-(--ui-bg)">
+    <!-- Form body -->
+    <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-3.5 overflow-y-auto max-h-[72vh]">
+      <UAlert v-if="error" :title="error" color="error" variant="subtle" class="col-span-2" />
+
+      <UFormField label="Firm Name" required class="col-span-2">
+        <UInput v-model="firm" placeholder="e.g. M/S Global Enterprises" class="w-full" />
+      </UFormField>
+
+      <UFormField label="GSTIN" class="col-span-2">
+        <div class="flex gap-2">
+          <UInput v-model="gstin" @input="onGstinInput" placeholder="27ABCDE1234F1Z5"
+                  maxlength="15" class="flex-1 font-mono uppercase w-full" />
+          <UButton label="FETCH" :loading="fetching" color="warning" size="sm"
+                   class="shrink-0" @click="fetchGST" />
+        </div>
+        <template #hint>Click Fetch to auto-fill from GST portal</template>
+      </UFormField>
+
+      <UFormField label="Contact No">
+        <UInput v-model="contact" class="w-full" />
+      </UFormField>
+
+      <UFormField label="State" required>
+        <UInput v-model="state" @input="onStateInput" class="w-full" />
+      </UFormField>
+
+      <UFormField label="State Code">
+        <UInput v-model="state_code" readonly maxlength="2"
+                :ui="{ base: 'cursor-not-allowed' }" color="neutral" variant="subtle" class="w-full" />
+      </UFormField>
+
+      <UFormField label="PAN">
+        <UInput v-model="pan" maxlength="10" class="uppercase font-mono w-full" />
+      </UFormField>
+
+      <UFormField label="Address" class="col-span-2">
+        <UTextarea v-model="addr" :rows="2" resize class="w-full" />
+      </UFormField>
+
+      <UFormField label="Pincode">
+        <UInput v-model="pin" type="number" class="w-full" />
+      </UFormField>
     </div>
-    <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" size="sm" @click="emit('close')" />
-  </div>
 
-  <!-- Form body -->
-  <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-3.5 overflow-y-auto max-h-[72vh] bg-(--ui-bg)">
-    <UAlert v-if="error" :title="error" color="error" variant="subtle" class="col-span-2" />
-
-    <UFormField label="Firm Name" required class="col-span-2">
-      <UInput v-model="firm" placeholder="e.g. M/S Global Enterprises" class="w-full" />
-    </UFormField>
-
-    <UFormField label="GSTIN" class="col-span-2">
-      <div class="flex gap-2">
-        <UInput v-model="gstin" @input="onGstinInput" placeholder="27ABCDE1234F1Z5"
-                maxlength="15" class="flex-1 font-mono uppercase w-full" />
-        <UButton label="FETCH" :loading="fetching" color="warning" size="sm"
-                 class="shrink-0" @click="fetchGST" />
-      </div>
-      <template #hint>Click Fetch to auto-fill from GST portal</template>
-    </UFormField>
-
-    <UFormField label="Contact No">
-      <UInput v-model="contact" class="w-full" />
-    </UFormField>
-
-    <UFormField label="State" required>
-      <UInput v-model="state" @input="onStateInput" class="w-full" />
-    </UFormField>
-
-    <UFormField label="State Code">
-      <UInput v-model="state_code" readonly maxlength="2"
-              :ui="{ base: 'cursor-not-allowed' }" color="neutral" variant="subtle" class="w-full" />
-    </UFormField>
-
-    <UFormField label="PAN">
-      <UInput v-model="pan" maxlength="10" class="uppercase font-mono w-full" />
-    </UFormField>
-
-    <UFormField label="Address" class="col-span-2">
-      <UTextarea v-model="addr" :rows="2" resize class="w-full" />
-    </UFormField>
-
-    <UFormField label="Pincode">
-      <UInput v-model="pin" type="number" class="w-full" />
-    </UFormField>
-  </div>
-
-  <!-- Footer -->
-  <div class="px-5 py-4 border-t border-(--ui-border) bg-(--ui-bg-muted) flex justify-end gap-2">
-    <UButton label="Cancel" color="neutral" variant="ghost" @click="emit('close')" />
-    <UButton label="Save Party" :loading="saving" color="primary" @click="submit" />
+    <!-- Footer -->
+    <div class="px-5 py-4 border-t border-(--ui-border) bg-(--ui-bg-muted) flex justify-end gap-2">
+      <UButton label="Cancel" color="neutral" variant="ghost" @click="emit('close')" />
+      <UButton label="Save Party" :loading="saving" color="primary" @click="submit" />
+    </div>
   </div>
 </template>

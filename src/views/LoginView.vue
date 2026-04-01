@@ -24,6 +24,7 @@ async function onSubmit() {
     const response = await api.post('/auth/login', {
       username: form.username,
       password: form.password,
+      remember: form.remember,
       device_id: window.navigator.userAgent // Simple device ID for now
     })
     

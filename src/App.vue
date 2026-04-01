@@ -7,6 +7,7 @@ const auth = useAuthStore()
 const router = useRouter()
 
 const isDark = ref(false)
+const appInitialized = ref(false)
 
 const items = computed(() => {
   const baseItems = [
@@ -26,6 +27,11 @@ const items = computed(() => {
       label: 'Sales',
       icon: 'i-heroicons-banknotes',
       to: '/sales'
+    })
+    baseItems[0].push({
+      label: 'New Sale',
+      icon: 'i-heroicons-plus-circle',
+      to: '/sales/create'
     })
     baseItems[0].push({
       label: 'Profile',
@@ -53,8 +59,12 @@ function toggleColorMode() {
   }
 }
 
-onMounted(() => {
-  auth.fetchUser()
+onMounted(async () => {
+  // Initialize authentication
+  console.log('[APP] Initializing authentication...');
+  await auth.fetchUser()
+  appInitialized.value = true
+  console.log('[APP] Initialization complete. Logged in:', auth.isLoggedIn);
   
   // Initialize color mode
   const savedMode = localStorage.getItem('color-mode')
@@ -70,7 +80,15 @@ onMounted(() => {
 
 <template>
   <UApp>
-    <div class="min-h-screen flex flex-col bg-(--ui-bg) w-full transition-colors duration-200">
+    <!-- Show a full-screen loader while the app is initializing auth -->
+    <div v-if="!appInitialized" class="min-h-screen flex items-center justify-center bg-(--ui-bg)">
+      <div class="flex flex-col items-center gap-4">
+        <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 animate-spin text-primary" />
+        <p class="text-(--ui-text-muted) font-medium animate-pulse">Restoring your session...</p>
+      </div>
+    </div>
+
+    <div v-else class="min-h-screen flex flex-col bg-(--ui-bg) w-full transition-colors duration-200">
       <header class="border-b border-(--ui-border) sticky top-0 z-50 bg-(--ui-bg)/75 backdrop-blur w-full">
         <UContainer class="max-w-none px-4 md:px-8">
           <div class="flex h-16 items-center justify-between gap-4">
@@ -133,6 +151,32 @@ onMounted(() => {
     </div>
   </UApp>
 </template>
+
+<style>
+/* Nuxt UI 4 (v3) uses CSS variables for theming */
+:root {
+  --ui-bg: white;
+  --ui-text: #111827;
+  --ui-text-muted: #6b7280;
+  --ui-border: #e5e7eb;
+}
+
+html.dark {
+  --ui-bg: #030712;
+  --ui-text: #f9fafb;
+  --ui-text-muted: #9ca3af;
+  --ui-border: #1f2937;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  overflow-x: hidden;
+  font-family: Inter, sans-serif;
+  color: var(--ui-text);
+  background-color: var(--ui-bg);
+}
+</style>
 
 <style>
 /* Nuxt UI 4 (v3) uses CSS variables for theming */

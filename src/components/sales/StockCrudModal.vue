@@ -66,7 +66,7 @@ function getCSRF(): string {
   const name = 'csrfToken='
   for (const cookie of decodeURIComponent(document.cookie).split(';')) {
     const c = cookie.trim()
-    if (t.startsWith(name)) return t.substring(name.length)
+    if (c.startsWith(name)) return c.substring(name.length)
   }
   return ''
 }
@@ -138,104 +138,93 @@ async function submit() {
 </script>
 
 <template>
-  <!-- Header -->
-  <div class="px-4 py-3 border-b border-(--ui-border) flex justify-between items-center bg-(--ui-bg-elevated)">
-    <div>
-      <h3 class="font-bold text-sm text-(--ui-text) uppercase tracking-wide">
-        {{ mode === 'create' ? 'Create' : 'Edit' }} Stock Item
-      </h3>
-      <p class="text-(--ui-text-muted) text-[10px] mt-0.5 truncate max-w-[260px]">
-        {{ mode === 'edit' ? stock?.item : 'Fill in item details below' }}
-      </p>
-    </div>
-    <UButton icon="i-heroicons-x-mark" color="neutral" variant="ghost" size="sm" @click="emit('close')" />
-  </div>
+  <div class="flex flex-col h-full bg-(--ui-bg)">
+    <!-- Form body -->
+    <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-3 overflow-y-auto max-h-[72vh]">
+      <UAlert v-if="error" :title="error" color="error" variant="subtle" class="col-span-2" />
 
-  <!-- Form body -->
-  <div class="p-5 grid grid-cols-2 gap-x-5 gap-y-3 overflow-y-auto max-h-[72vh] bg-(--ui-bg)">
-    <UAlert v-if="error" :title="error" color="error" variant="subtle" class="col-span-2" />
-
-    <UFormField label="Item Description" required class="col-span-2">
-      <UInput v-model="item" placeholder="e.g. Dell Monitor 24 inch" class="w-full" />
-    </UFormField>
-
-    <!-- Multi-batch selector (edit only) -->
-    <div v-if="isMultiBatch" class="col-span-2 space-y-2">
-      <UFormField label="Select Batch to Edit">
-        <USelect :items="stock?.batches?.map((b, i) => ({
-                    label: `${b.batch || 'No Batch'} · Qty: ${b.qty} · Exp: ${b.expiry || 'N/A'}`,
-                    value: i
-                  })) || []"
-                 value-key="value" label-key="label"
-                 placeholder="— Select a batch to edit —"
-                 class="w-full"
-                 @update:model-value="selectBatch" />
+      <UFormField label="Item Description" required class="col-span-2">
+        <UInput v-model="item" placeholder="e.g. Dell Monitor 24 inch" class="w-full" />
       </UFormField>
-      <div v-if="selectedBatchIdx >= 0 && stock?.batches?.[selectedBatchIdx]"
-           class="p-3 bg-(--ui-bg-muted) border border-(--ui-border) rounded-xl grid grid-cols-3 gap-2 text-xs text-(--ui-text-dimmed)">
-        <div>
-          <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Batch</span>
-          <strong>{{ stock.batches![selectedBatchIdx].batch || 'No Batch' }}</strong>
-        </div>
-        <div>
-          <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Qty</span>
-          <strong>{{ stock.batches![selectedBatchIdx].qty }}</strong>
-        </div>
-        <div>
-          <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Rate</span>
-          <strong>₹{{ stock.batches![selectedBatchIdx].rate }}</strong>
+
+      <!-- Multi-batch selector (edit only) -->
+      <div v-if="isMultiBatch" class="col-span-2 space-y-2">
+        <UFormField label="Select Batch to Edit">
+          <USelect :items="stock?.batches?.map((b, i) => ({
+                      label: `${b.batch || 'No Batch'} · Qty: ${b.qty} · Exp: ${b.expiry || 'N/A'}`,
+                      value: i
+                    })) || []"
+                   value-key="value" label-key="label"
+                   placeholder="— Select a batch to edit —"
+                   class="w-full"
+                   @update:model-value="selectBatch" />
+        </UFormField>
+        <div v-if="selectedBatchIdx >= 0 && stock?.batches?.[selectedBatchIdx]"
+             class="p-3 bg-(--ui-bg-muted) border border-(--ui-border) rounded-xl grid grid-cols-3 gap-2 text-xs text-(--ui-text-dimmed)">
+          <div>
+            <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Batch</span>
+            <strong>{{ stock.batches![selectedBatchIdx].batch || 'No Batch' }}</strong>
+          </div>
+          <div>
+            <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Qty</span>
+            <strong>{{ stock.batches![selectedBatchIdx].qty }}</strong>
+          </div>
+          <div>
+            <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Rate</span>
+            <strong>₹{{ stock.batches![selectedBatchIdx].rate }}</strong>
+          </div>
         </div>
       </div>
+
+      <UFormField v-else label="Batch No">
+        <UInput v-model="batch" placeholder="Optional" class="w-full" />
+      </UFormField>
+
+      <UFormField label="Part No (P/No)">
+        <UInput v-model="pno" class="w-full" />
+      </UFormField>
+
+      <UFormField label="OEM / Brand">
+        <UInput v-model="oem" class="w-full" />
+      </UFormField>
+
+      <UFormField label="HSN/SAC Code" required>
+        <UInput v-model="hsn" placeholder="e.g. 8471" class="w-full" />
+      </UFormField>
+
+      <div class="grid grid-cols-2 gap-2">
+        <UFormField :label="mode === 'create' ? 'Opening Qty' : 'Qty'" required>
+          <UInput v-model="qty" type="number" step="0.01" placeholder="0.00" class="w-full" />
+        </UFormField>
+        <UFormField label="UOM" required>
+          <USelect v-model="uom" :items="UOM_OPTIONS" value-key="value" label-key="label" class="w-full" />
+        </UFormField>
+      </div>
+
+      <UFormField label="Selling Rate (₹)" required>
+        <UInput v-model="rate" type="number" step="0.01"
+                :leading-icon="() => '₹'" class="w-full" />
+      </UFormField>
+
+      <div class="grid grid-cols-2 gap-2">
+        <UFormField label="GST %" required>
+          <USelect v-model="grate" :items="GST_OPTIONS" value-key="value" label-key="label" class="w-full" />
+        </UFormField>
+        <UFormField label="MRP">
+          <UInput v-model="mrp" type="number" step="0.01" class="w-full" />
+        </UFormField>
+      </div>
+
+      <UFormField label="Expiry Date">
+        <UInput v-model="expiryDate" type="date" class="w-full" />
+      </UFormField>
     </div>
 
-    <UFormField v-else label="Batch No">
-      <UInput v-model="batch" placeholder="Optional" class="w-full" />
-    </UFormField>
-
-    <UFormField label="Part No (P/No)">
-      <UInput v-model="pno" class="w-full" />
-    </UFormField>
-
-    <UFormField label="OEM / Brand">
-      <UInput v-model="oem" class="w-full" />
-    </UFormField>
-
-    <UFormField label="HSN/SAC Code" required>
-      <UInput v-model="hsn" placeholder="e.g. 8471" class="w-full" />
-    </UFormField>
-
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField :label="mode === 'create' ? 'Opening Qty' : 'Qty'" required>
-        <UInput v-model="qty" type="number" step="0.01" placeholder="0.00" class="w-full" />
-      </UFormField>
-      <UFormField label="UOM" required>
-        <USelect v-model="uom" :items="UOM_OPTIONS" value-key="value" label-key="label" class="w-full" />
-      </UFormField>
+    <!-- Footer -->
+    <div class="px-5 py-4 border-t border-(--ui-border) bg-(--ui-bg-muted) flex justify-end gap-2">
+      <UButton label="Cancel" color="neutral" variant="ghost" @click="emit('close')" />
+      <UButton :label="mode === 'create' ? 'Save Item' : 'Update Item'" :loading="saving"
+               color="primary" variant="solid" @click="submit" />
     </div>
-
-    <UFormField label="Selling Rate (₹)" required>
-      <UInput v-model="rate" type="number" step="0.01"
-              :leading-icon="() => '₹'" class="w-full" />
-    </UFormField>
-
-    <div class="grid grid-cols-2 gap-2">
-      <UFormField label="GST %" required>
-        <USelect v-model="grate" :items="GST_OPTIONS" value-key="value" label-key="label" class="w-full" />
-      </UFormField>
-      <UFormField label="MRP">
-        <UInput v-model="mrp" type="number" step="0.01" class="w-full" />
-      </UFormField>
-    </div>
-
-    <UFormField label="Expiry Date">
-      <UInput v-model="expiryDate" type="date" class="w-full" />
-    </UFormField>
-  </div>
-
-  <!-- Footer -->
-  <div class="px-5 py-4 border-t border-(--ui-border) bg-(--ui-bg-muted) flex justify-end gap-2">
-    <UButton label="Cancel" color="neutral" variant="ghost" @click="emit('close')" />
-    <UButton :label="mode === 'create' ? 'Save Item' : 'Update Item'" :loading="saving"
-             color="neutral" variant="solid" @click="submit" />
   </div>
 </template>
