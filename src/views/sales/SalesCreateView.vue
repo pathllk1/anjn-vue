@@ -16,8 +16,8 @@ import PartyCreateModal from '@/components/sales/PartyCreateModal.vue'
 import StockCrudModal   from '@/components/sales/StockCrudModal.vue'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
-interface Batch       { batch?: string|null; qty: number; rate: number; expiry?: string|null; mrp?: number|null }
-interface Stock       { id?: string; _id?: string; item: string; batch?: string|null; batches?: Batch[]
+interface Batch       { batch?: string; qty: number; rate: number; expiry?: string; mrp?: number }
+interface Stock       { id?: string; _id?: string; item: string; batch?: string; batches?: Batch[]
                         oem?: string; hsn?: string; pno?: string; qty: number; uom: string; rate: number; grate: number }
 interface Party       { _id?: string; id?: string; firm: string; gstin: string; state?: string; addr?: string
                         state_code?: string; pin?: string; contact?: string }
@@ -57,7 +57,7 @@ const activeFirmLocation  = ref<FirmLocation|null>(null)
 const partyBalance        = ref<{ balance: number; balanceType: string; balanceFormatted: string }|null>(null)
 
 const meta = reactive<BillMeta>({
-  billNo: '', billDate: new Date().toISOString().split('T')[0],
+  billNo: '', billDate: new Date().toISOString().split('T')[0] as string,
   billType: 'intra-state', reverseCharge: false,
   referenceNo: '', vehicleNo: '', dispatchThrough: '', narration: '',
 })
@@ -329,7 +329,7 @@ function clearAll() {
   historyCache.value = {}
   meta.billNo = ''; meta.referenceNo = ''; meta.vehicleNo = ''; meta.narration = ''
   meta.reverseCharge = false; meta.billType = 'intra-state'
-  meta.billDate = new Date().toISOString().split('T')[0]
+  meta.billDate = new Date().toISOString().split('T')[0] as string
   loadNextBillNo()
 }
 
@@ -344,6 +344,11 @@ async function onPartyCreated(party: Party) {
   parties.value.push(party)
   showPartyCreateModal.value = false
   await onPartySelected(party)
+}
+
+// ─── UI helpers ──────────────────────────────────────────────────────────────
+function reloadPage() {
+  if (typeof window !== 'undefined') window.location.reload()
 }
 
 // ─── Stock modal callbacks ────────────────────────────────────────────────────
@@ -528,7 +533,7 @@ function setConsigneeField(f: keyof Consignee, v: string) {
     <UAlert :title="appError" color="error" variant="subtle" class="mb-4" />
     <div class="flex gap-2">
       <UButton label="← Back" color="neutral" @click="$router.push('/sales')" />
-      <UButton label="Reload" color="error" @click="location.reload()" />
+      <UButton label="Reload" color="error" @click="reloadPage" />
     </div>
   </div>
 

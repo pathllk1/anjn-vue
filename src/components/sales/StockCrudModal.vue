@@ -48,18 +48,19 @@ watch(() => props.stock, (s) => {
   rate.value       = s.rate       !== undefined ? Number(s.rate) : undefined
   grate.value      = String(s.grate ?? '18')
   mrp.value        = s.mrp        !== undefined ? Number(s.mrp) : undefined
-  expiryDate.value = s.expiryDate ? String(s.expiryDate).split('T')[0] : ''
+  expiryDate.value = (s.expiryDate ? String(s.expiryDate).split('T')[0] : '') as any
 }, { immediate: true })
 
 function selectBatch(idx: number) {
   if (!props.stock?.batches) return
   selectedBatchIdx.value = idx
   const b = props.stock.batches[idx]
-  batch.value      = b.batch      || ''
+  if (!b) return
+  batch.value      = (b.batch ?? '') as any
   qty.value        = Number(b.qty)
   rate.value       = Number(b.rate)
   mrp.value        = b.mrp        ? Number(b.mrp) : undefined
-  expiryDate.value = b.expiry ? String(b.expiry).split('T')[0] : ''
+  expiryDate.value = (b.expiry ? String(b.expiry).split('T')[0] : '') as any
 }
 
 function getCSRF(): string {
@@ -163,15 +164,15 @@ async function submit() {
              class="p-3 bg-(--ui-bg-muted) border border-(--ui-border) rounded-xl grid grid-cols-3 gap-2 text-xs text-(--ui-text-dimmed)">
           <div>
             <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Batch</span>
-            <strong>{{ stock.batches![selectedBatchIdx].batch || 'No Batch' }}</strong>
+            <strong>{{ stock?.batches?.[selectedBatchIdx]?.batch || 'No Batch' }}</strong>
           </div>
           <div>
             <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Qty</span>
-            <strong>{{ stock.batches![selectedBatchIdx].qty }}</strong>
+            <strong>{{ stock?.batches?.[selectedBatchIdx]?.qty }}</strong>
           </div>
           <div>
             <span class="text-(--ui-text-muted) uppercase text-[9px] tracking-wide block">Rate</span>
-            <strong>₹{{ stock.batches![selectedBatchIdx].rate }}</strong>
+            <strong>₹{{ stock?.batches?.[selectedBatchIdx]?.rate }}</strong>
           </div>
         </div>
       </div>

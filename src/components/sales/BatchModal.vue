@@ -1,6 +1,7 @@
 <script setup lang="ts">
-interface Batch { batch?: string | null; qty: number; rate: number; expiry?: string | null; mrp?: number | null }
-interface Stock  { item: string; uom: string; batches?: Batch[]; [key: string]: any }
+interface Batch { batch?: string; qty: number; rate: number; expiry?: string; mrp?: number }
+interface Stock  { id?: string; _id?: string; item: string; batch?: string; batches?: Batch[]
+                   oem?: string; hsn?: string; pno?: string; qty: number; uom: string; rate: number; grate: number; expiry?: string }
 
 const props = defineProps<{ stock: Stock | null }>()
 const emit  = defineEmits<{ select: [stockWithBatch: Stock]; close: [] }>()

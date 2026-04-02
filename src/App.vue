@@ -10,7 +10,7 @@ const isDark = ref(false)
 const appInitialized = ref(false)
 
 const items = computed(() => {
-  const baseItems = [
+  const baseItems: Array<Array<any>> = [
     [{
       label: 'Home',
       icon: 'i-heroicons-home',
@@ -22,7 +22,7 @@ const items = computed(() => {
     }]
   ]
 
-  if (auth.isLoggedIn) {
+  if (auth.isLoggedIn && baseItems[0]) {
     baseItems[0].push({
       label: 'Sales',
       icon: 'i-heroicons-banknotes',

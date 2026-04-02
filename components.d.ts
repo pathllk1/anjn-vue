@@ -14,7 +14,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     BatchModal: typeof import('./src/components/sales/BatchModal.vue')['default']
     ChargesModal: typeof import('./src/components/sales/ChargesModal.vue')['default']
-    Colfilterbtn: typeof import('./src/components/Colfilterbtn.vue')['default']
     ColFilterBtn: typeof import('./src/components/ColFilterBtn.vue')['default']
     ColFilterPanel: typeof import('./src/components/ColFilterPanel.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
@@ -50,9 +49,7 @@ declare module 'vue' {
     UPopover: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Popover.vue')['default']
     USelect: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Select.vue')['default']
     USeparator: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Separator.vue')['default']
-    UTable: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
     UTextarea: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Textarea.vue')['default']
-    UTooltip: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Tooltip.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
 }
@@ -61,7 +58,6 @@ declare module 'vue' {
 declare global {
   const BatchModal: typeof import('./src/components/sales/BatchModal.vue')['default']
   const ChargesModal: typeof import('./src/components/sales/ChargesModal.vue')['default']
-  const Colfilterbtn: typeof import('./src/components/Colfilterbtn.vue')['default']
   const ColFilterBtn: typeof import('./src/components/ColFilterBtn.vue')['default']
   const ColFilterPanel: typeof import('./src/components/ColFilterPanel.vue')['default']
   const HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
@@ -97,8 +93,6 @@ declare global {
   const UPopover: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Popover.vue')['default']
   const USelect: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Select.vue')['default']
   const USeparator: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Separator.vue')['default']
-  const UTable: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
   const UTextarea: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Textarea.vue')['default']
-  const UTooltip: typeof import('./node_modules/@nuxt/ui/dist/runtime/components/Tooltip.vue')['default']
   const WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
 }

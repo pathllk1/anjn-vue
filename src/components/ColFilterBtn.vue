@@ -18,7 +18,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <UPopover :open="props.open" @update:open="(v) => v ? emit('open', props.col) : emit('close')">
+  <UPopover :open="props.open" @update:open="(v: boolean) => v ? emit('open', props.col) : emit('close')">
     <button
       type="button"
       class="w-5 h-5 flex items-center justify-center rounded hover:bg-white/20 transition relative"

@@ -35,7 +35,9 @@ function handleSelect(stock: Stock) {
     emit('select', stock, true)
   } else if (Array.isArray(stock.batches) && stock.batches.length === 1) {
     const b = stock.batches[0]
-    emit('select', { ...stock, batch: b.batch, qty: b.qty, rate: b.rate }, false)
+    if (b) {
+      emit('select', { ...stock, batch: b.batch, qty: b.qty, rate: b.rate }, false)
+    }
   } else {
     emit('select', stock, false)
   }
@@ -80,7 +82,7 @@ function handleSelect(stock: Stock) {
             <td class="p-2.5">
               <span v-if="!stock.batches?.length" class="text-(--ui-text-muted)">—</span>
               <span v-else-if="stock.batches.length === 1" class="font-mono text-(--ui-text-dimmed) text-[11px]">
-                {{ stock.batches[0].batch || 'No Batch' }}
+                {{ stock.batches?.[0]?.batch || 'No Batch' }}
               </span>
               <UBadge v-else :label="`${stock.batches.length} batches`" color="primary" variant="subtle" size="sm" />
             </td>

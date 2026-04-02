@@ -100,6 +100,10 @@ function getTax(bill: any) {
   return (bill.cgst || 0) + (bill.sgst || 0) + (bill.igst || 0)
 }
 
+function printBill() {
+  if (typeof window !== 'undefined' && window.print) window.print()
+}
+
 function isCancelled(bill: any) {
   return (bill?.status || 'ACTIVE') === 'CANCELLED'
 }
@@ -632,7 +636,7 @@ onUnmounted(() => {
                     />
                   </button>
                   <!-- Col filter button -->
-                  <UPopover :open="openFilterCol === 'bno'" @update:open="(v) => { if(v) openColFilter('bno'); else openFilterCol = null }">
+                  <UPopover :open="openFilterCol === 'bno'" @update:open="(v: boolean) => { if(v) openColFilter('bno'); else openFilterCol = null }">
                     <button
                       type="button"
                       class="w-5 h-5 flex items-center justify-center rounded hover:bg-white/20 transition relative"
@@ -840,8 +844,8 @@ onUnmounted(() => {
                 <!-- Type -->
                 <td class="px-3 py-2 whitespace-nowrap">
                   <UBadge
-                    :label="{ PURCHASE: 'PUR', CREDIT_NOTE: 'CN', DEBIT_NOTE: 'DN' }[(bill.btype || '').toUpperCase()] || 'SLS'"
-                    :color="{ PURCHASE: 'purple', CREDIT_NOTE: 'warning', DEBIT_NOTE: 'neutral' }[(bill.btype || '').toUpperCase()] || 'success'"
+                    :label="({ PURCHASE: 'PUR', CREDIT_NOTE: 'CN', DEBIT_NOTE: 'DN' } as { [key: string]: string })[(bill.btype || '').toUpperCase()] || 'SLS'"
+                    :color="({ PURCHASE: 'purple', CREDIT_NOTE: 'warning', DEBIT_NOTE: 'neutral' } as { [key: string]: string })[(bill.btype || '').toUpperCase()] || 'success'"
                     variant="subtle"
                     size="sm"
                   />
@@ -955,8 +959,8 @@ onUnmounted(() => {
           <div class="flex flex-wrap gap-3 items-center">
             <span class="font-mono text-xl font-bold text-gray-900">{{ detailBill.bno }}</span>
             <UBadge
-              :label="{ PURCHASE: 'PURCHASE', CREDIT_NOTE: 'CREDIT NOTE', DEBIT_NOTE: 'DEBIT NOTE' }[(detailBill.btype||'').toUpperCase()] || 'SALES'"
-              :color="{ PURCHASE: 'purple', CREDIT_NOTE: 'warning', DEBIT_NOTE: 'neutral' }[(detailBill.btype||'').toUpperCase()] || 'success'"
+              :label="({ PURCHASE: 'PURCHASE', CREDIT_NOTE: 'CREDIT NOTE', DEBIT_NOTE: 'DEBIT NOTE' } as { [key: string]: string })[(detailBill.btype||'').toUpperCase()] || 'SALES'"
+              :color="({ PURCHASE: 'purple', CREDIT_NOTE: 'warning', DEBIT_NOTE: 'neutral' } as { [key: string]: string })[(detailBill.btype||'').toUpperCase()] || 'success'"
               variant="subtle"
             />
             <UBadge
@@ -1150,7 +1154,7 @@ onUnmounted(() => {
               color="neutral"
               variant="outline"
               size="sm"
-              @click="() => typeof window !== 'undefined' && window.print()"
+              @click="printBill"
             />
             <UButton
               v-if="detailBill && !isCancelled(detailBill)"

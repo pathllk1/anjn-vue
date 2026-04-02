@@ -19,6 +19,8 @@ const existingCharges = ref<any[]>([])
 const chargesLoaded   = ref(false)
 const showSuggestions = ref(false)
 
+const scheduleHideSuggestions = () => setTimeout(() => showSuggestions.value = false, 150)
+
 const typeOptions = [
   { label: 'Freight',   value: 'freight'   },
   { label: 'Packing',   value: 'packing'   },
@@ -97,7 +99,7 @@ function chargeTotal(c: OtherCharge): number {
             <UFormField label="Charge Name" required>
               <UInput v-model="name" placeholder="e.g. Freight, Packing" autocomplete="off"
                       class="w-full"
-                      @input="showSuggestions = true" @blur="setTimeout(() => showSuggestions = false, 150)" />
+                      @input="showSuggestions = true" @blur="scheduleHideSuggestions()" />
             </UFormField>
             <div v-if="showSuggestions && filteredSuggestions.length"
                  class="absolute z-50 bg-(--ui-bg) border border-(--ui-border) rounded-xl shadow-xl mt-0.5 w-full max-h-40 overflow-y-auto top-full left-0">
