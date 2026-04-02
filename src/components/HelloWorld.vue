@@ -15,6 +15,7 @@ defineProps<{
   </div>
 </template>
 
+
 <style scoped>
 h1 {
   font-weight: 500;
